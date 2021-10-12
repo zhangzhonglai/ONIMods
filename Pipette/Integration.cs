@@ -1,8 +1,10 @@
+using System.Collections.Generic;
 using System.IO;
 using HarmonyLib;
 using PeterHan.PLib.Actions;
 using PeterHan.PLib.Core;
 using PeterHan.PLib.Database;
+using UnityEngine;
 
 namespace Pipette
 {
@@ -22,6 +24,27 @@ namespace Pipette
 
             PipetteConst.PIPETTE_ACTION = new PActionManager().CreateAction("Pipette.OpenTool", PipetteConst.STRING_PIPETTE_NAME, new PKeyBinding(KKeyCode.None, Modifier.None));
 
+        }
+
+        [HarmonyPatch(typeof(PlayerController), "OnPrefabInit")]
+        public static class PlayerController_OnPrefabInit
+        {
+            public static void Postfix(PlayerController __instance)
+            {
+                var interfaceTools = new List<InterfaceTool>(__instance.tools);
+                
+                var pipetteTool = new GameObject(PipetteConst.PIPETTE_TOOL_NAME);
+                pipetteTool.AddComponent<PipetteTool>();
+
+                pipetteTool.transform.SetParent(__instance.gameObject.transform);
+                pipetteTool.gameObject.SetActive(true);
+                pipetteTool.gameObject.SetActive(false);
+
+                interfaceTools.Add(pipetteTool.GetComponent<InterfaceTool>());
+
+
+                __instance.tools = interfaceTools.ToArray();
+            }
         }
 
         [HarmonyPatch(typeof(ToolMenu), "CreateBasicTools")]
