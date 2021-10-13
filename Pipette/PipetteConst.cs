@@ -10,6 +10,8 @@ namespace Pipette
         public static LocString STRING_PIPETTE_TOOLTIP_TITLE = "Pipette";
         public static LocString STRING_PIPETTE_ACTION_DRAG = "DRAG";
         public static LocString STRING_PIPETTE_ACTION_BACK = "BACK";
+        public static LocString STRING_PIPETTE_NOT_EMPTY = "Pipette Is Not Empty";
+        public static LocString STRING_PIPETTE_EMPTY = "Pipette Is Empty";
         public static LocString STRING_INVALID_LIQUID = "Invalid Liquid";
 
         public static string PIPETTE_TOOL_NAME = "PipetteTool";
