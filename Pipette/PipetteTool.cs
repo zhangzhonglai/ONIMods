@@ -83,7 +83,7 @@ namespace Pipette
                     else
                     {
                         PopFXManager.Instance.SpawnFX(PopFXManager.Instance.sprite_Negative,
-                            (string)PipetteConst.STRING_INVALID_LIQUID, (Transform)null, cursor_pos, force_spawn: true);
+                            (string)PipetteConst.STRING_INCOMPATIBLE_LIQUID, (Transform)null, cursor_pos, force_spawn: true);
                     }
                 }
                 else
