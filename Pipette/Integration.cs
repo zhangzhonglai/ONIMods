@@ -4,17 +4,21 @@ using HarmonyLib;
 using PeterHan.PLib.Actions;
 using PeterHan.PLib.Core;
 using PeterHan.PLib.Database;
+using PeterHan.PLib.Options;
 using UnityEngine;
 
 namespace Pipette
 {
     public sealed class Integration : KMod.UserMod2
     {
+        public static PipetteSettings Settings;
+
         public override void OnLoad(Harmony harmony)
         {
             base.OnLoad(harmony);
             PUtil.InitLibrary();
             new PLocalization().Register();
+            new POptions().RegisterOptions(this, typeof(PipetteSettings));
 
             PipetteConst.PIPETTE_PATH_CONFIG_FOLDER = Path.Combine(path, "config");
             PipetteConst.PIPETTE_PATH_CONFIG_FILE =
@@ -32,7 +36,9 @@ namespace Pipette
             public static void Postfix(PlayerController __instance)
             {
                 var interfaceTools = new List<InterfaceTool>(__instance.tools);
-                
+
+                Settings = POptions.ReadSettings<PipetteSettings>() ?? new PipetteSettings();
+
                 var pipetteTool = new GameObject(PipetteConst.PIPETTE_TOOL_NAME);
                 pipetteTool.AddComponent<PipetteTool>();
 

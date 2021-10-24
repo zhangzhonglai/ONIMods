@@ -62,6 +62,7 @@
   <ItemGroup>
     <Compile Include="Integration.cs" />
     <Compile Include="PipetteConst.cs" />
+    <Compile Include="PipetteSettings.cs" />
     <Compile Include="PipetteTool.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

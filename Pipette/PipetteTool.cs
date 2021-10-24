@@ -10,7 +10,6 @@ namespace Pipette
         private int currentCell;
         private Element selectedElement;
         private float temperature = 0f;
-        private const float MASS_STEP = 0.01f;
         public static InterfaceTool Instance { get; private set; }
         public override void GetOverlayColorData(out HashSet<ToolMenu.CellColorData> colors)
         {
@@ -28,7 +27,7 @@ namespace Pipette
             UISounds.PlaySound(UISounds.Sound.ClickObject);
             this.selectedElement = Grid.Element[cell];
             this.temperature = Mathf.Round(Grid.Temperature[cell] * 10f) / 10f;
-            SimMessages.ConsumeMass(cell, this.selectedElement.id, MASS_STEP, 1);
+            SimMessages.ConsumeMass(cell, this.selectedElement.id, Integration.Settings.capacity, 1);
         }
 
         private void Drip(int cell)
@@ -40,7 +39,7 @@ namespace Pipette
             {
                 currentMass = Grid.Mass[cell];
             }
-            SimMessages.ReplaceElement(cell, this.selectedElement.id, sandBoxTool, currentMass + MASS_STEP, this.temperature);
+            SimMessages.ReplaceElement(cell, this.selectedElement.id, sandBoxTool, currentMass + Integration.Settings.capacity, this.temperature);
             this.selectedElement = null;
         }
 
