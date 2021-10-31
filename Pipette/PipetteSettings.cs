@@ -9,11 +9,11 @@ namespace Pipette
         [Option("Capacity (kg)", "The capacity (kg) of pipette")]
         [Limit(0.01f, 0.1f)]
         [JsonProperty]
-        public float capacity { get; set; }
+        public float Capacity { get; set; }
 
         public PipetteSettings()
         {
-            this.capacity = 0.01f;
+            this.Capacity = 0.01f;
         }
     }
 }

@@ -8,39 +8,48 @@ namespace Pipette
     {
         protected Color RadiusIndicatorColor = new Color(0.5f, 0.7f, 0.5f, 0.2f);
         private int currentCell;
+        private int selectedCell;
         private Element selectedElement;
-        private float temperature = 0f;
+        private float temperature;
         public static InterfaceTool Instance { get; private set; }
         public override void GetOverlayColorData(out HashSet<ToolMenu.CellColorData> colors)
         {
-            colors = new HashSet<ToolMenu.CellColorData> {new ToolMenu.CellColorData(this.currentCell, this.RadiusIndicatorColor)};
+            colors = new HashSet<ToolMenu.CellColorData> {new ToolMenu.CellColorData(currentCell, RadiusIndicatorColor)};
         }
 
         public override void OnMouseMove(Vector3 cursorPos)
         {
             base.OnMouseMove(cursorPos);
-            this.currentCell = Grid.PosToCell(cursorPos);
+            currentCell = Grid.PosToCell(cursorPos);
         }
 
         private void Absorb(int cell)
         {
             UISounds.PlaySound(UISounds.Sound.ClickObject);
-            this.selectedElement = Grid.Element[cell];
-            this.temperature = Mathf.Round(Grid.Temperature[cell] * 10f) / 10f;
-            SimMessages.ConsumeMass(cell, this.selectedElement.id, Integration.Settings.capacity, 1);
+            selectedElement = Grid.Element[cell];
+            selectedCell = cell;
+            temperature = Mathf.Round(Grid.Temperature[cell] * 10f) / 10f;
+           SimMessages.ConsumeMass(cell, selectedElement.id, Integration.Settings.Capacity, 1);
         }
 
         private void Drip(int cell)
         {
             UISounds.PlaySound(UISounds.Sound.ClickObject);
             var sandBoxTool = CellEventLogger.Instance.SandBoxTool;
-            var currentMass = 0f;
+            var mass = Integration.Settings.Capacity;
             if (Grid.IsLiquid(cell))
             {
-                currentMass = Grid.Mass[cell];
+                if (selectedCell != cell)
+                {
+                    mass += Grid.Mass[cell];
+                }
+                else
+                {
+                    mass = Grid.Mass[cell];
+                }
             }
-            SimMessages.ReplaceElement(cell, this.selectedElement.id, sandBoxTool, currentMass + Integration.Settings.capacity, this.temperature);
-            this.selectedElement = null;
+            SimMessages.ReplaceElement(cell, selectedElement.id, sandBoxTool, mass, temperature);
+            selectedElement = null;
         }
 
         public override void OnLeftClickDown(Vector3 cursor_pos)
@@ -48,21 +57,21 @@ namespace Pipette
             var cell = Grid.PosToCell(cursor_pos);
             if (Grid.IsValidCell(cell) && Grid.IsLiquid(cell))
             {
-                if (this.selectedElement == null)
+                if (selectedElement == null)
                 {
-                    this.Absorb(cell);
-                    this.RadiusIndicatorColor = new Color(0.5f, 0.5f, 0.7f, 0.2f);
+                    Absorb(cell);
+                    RadiusIndicatorColor = new Color(0.5f, 0.5f, 0.7f, 0.2f);
                 }
                 else
                 {
                     PopFXManager.Instance.SpawnFX(PopFXManager.Instance.sprite_Negative,
-                        (string)PipetteConst.STRING_PIPETTE_NOT_EMPTY, (Transform)null, cursor_pos, force_spawn: true);
+                        PipetteConst.STRING_PIPETTE_NOT_EMPTY, null, cursor_pos, force_spawn: true);
                 }
             }
             else
             {
                 PopFXManager.Instance.SpawnFX(PopFXManager.Instance.sprite_Negative,
-                    (string)PipetteConst.STRING_INVALID_LIQUID, (Transform)null, cursor_pos, force_spawn: true);
+                    PipetteConst.STRING_INVALID_LIQUID, null, cursor_pos, force_spawn: true);
             }
         }
 
@@ -71,29 +80,29 @@ namespace Pipette
             var cell = Grid.PosToCell(cursor_pos);
             if (Grid.IsValidCell(cell) && !Grid.IsSolidCell(cell))
             {
-                if (this.selectedElement != null)
+                if (selectedElement != null)
                 {
-                    if (!Grid.IsLiquid(cell) || this.selectedElement.id == Grid.Element[cell].id)
+                    if (!Grid.IsLiquid(cell) || selectedElement.id == Grid.Element[cell].id)
                     {
-                        this.Drip(cell);
-                        this.RadiusIndicatorColor = new Color(0.5f, 0.7f, 0.5f, 0.2f);
+                        Drip(cell);
+                        RadiusIndicatorColor = new Color(0.5f, 0.7f, 0.5f, 0.2f);
                     }
                     else
                     {
                         PopFXManager.Instance.SpawnFX(PopFXManager.Instance.sprite_Negative,
-                            (string)PipetteConst.STRING_INCOMPATIBLE_LIQUID, (Transform)null, cursor_pos, force_spawn: true);
+                            PipetteConst.STRING_INCOMPATIBLE_LIQUID, null, cursor_pos, force_spawn: true);
                     }
                 }
                 else
                 {
                     PopFXManager.Instance.SpawnFX(PopFXManager.Instance.sprite_Negative,
-                        (string)PipetteConst.STRING_PIPETTE_EMPTY, (Transform)null, cursor_pos, force_spawn: true);
+                        PipetteConst.STRING_PIPETTE_EMPTY, null, cursor_pos, force_spawn: true);
                 }
             }
             else
             {
                 PopFXManager.Instance.SpawnFX(PopFXManager.Instance.sprite_Negative,
-                    (string)UI.DEBUG_TOOLS.INVALID_LOCATION, (Transform)null, cursor_pos, force_spawn: true);
+                    UI.DEBUG_TOOLS.INVALID_LOCATION, null, cursor_pos, force_spawn: true);
             }
         }
 
