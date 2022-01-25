@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using STRINGS;
 using UnityEngine;
 
@@ -7,20 +8,21 @@ namespace Pipette
     public class PipetteTool : InterfaceTool
     {
         protected Color RadiusIndicatorColor = new Color(0.5f, 0.7f, 0.5f, 0.2f);
-        private int currentCell;
+        private int coloredCell;
         private int selectedCell;
         private Element selectedElement;
+        private float mass;
         private float temperature;
         public static InterfaceTool Instance { get; private set; }
         public override void GetOverlayColorData(out HashSet<ToolMenu.CellColorData> colors)
         {
-            colors = new HashSet<ToolMenu.CellColorData> {new ToolMenu.CellColorData(currentCell, RadiusIndicatorColor)};
+            colors = new HashSet<ToolMenu.CellColorData> {new ToolMenu.CellColorData(coloredCell, RadiusIndicatorColor)};
         }
 
         public override void OnMouseMove(Vector3 cursorPos)
         {
             base.OnMouseMove(cursorPos);
-            currentCell = Grid.PosToCell(cursorPos);
+            coloredCell = Grid.PosToCell(cursorPos);
         }
 
         private void Absorb(int cell)
@@ -28,15 +30,15 @@ namespace Pipette
             UISounds.PlaySound(UISounds.Sound.ClickObject);
             selectedElement = Grid.Element[cell];
             selectedCell = cell;
+            mass = Math.Min(Grid.Mass[cell], Integration.Settings.Capacity);
             temperature = Mathf.Round(Grid.Temperature[cell] * 10f) / 10f;
-           SimMessages.ConsumeMass(cell, selectedElement.id, Integration.Settings.Capacity, 1);
+            SimMessages.ConsumeMass(cell, selectedElement.id, mass, 1);
         }
 
         private void Drip(int cell)
         {
             UISounds.PlaySound(UISounds.Sound.ClickObject);
             var sandBoxTool = CellEventLogger.Instance.SandBoxTool;
-            var mass = Integration.Settings.Capacity;
             if (Grid.IsLiquid(cell))
             {
                 if (selectedCell != cell)
@@ -50,6 +52,7 @@ namespace Pipette
             }
             SimMessages.ReplaceElement(cell, selectedElement.id, sandBoxTool, mass, temperature);
             selectedElement = null;
+            mass = 0f;
         }
 
         public override void OnLeftClickDown(Vector3 cursor_pos)
